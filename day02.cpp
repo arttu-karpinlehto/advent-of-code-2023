@@ -138,10 +138,10 @@ void fetch(cubes& value, std::string s)
 {
 	s += ",";	// Append comma to string for simpler logic.
 
-	auto pos = 0;
+	size_t pos = 0;
 	while (pos < s.length()) {
 		// Skip possible leading spaces.
-		while (s.at(pos) == ' ') ++pos;
+		while (' ' == s.at(pos)) ++pos;
 		// Look for next comma in string and send a substring up to that comma to cubeset().
 		auto newpos = s.find(',', pos);
 		cubeset(value, s.substr(pos, newpos - pos));
@@ -173,14 +173,17 @@ int day02(int part, std::istream& puzzle_input)
 			// Set position after semicolon.
 			pos = newpos + 1;
 
-			if (part == 1) {
+			if (1 == part) {
+				// Part 1: When number of cubes is not within set limits,
+				// set flag and break from loop. Game ID will not be added.
 				if (false == (game_ok = value.within_limits())) break;
 			} else {
+				// Part 2: Update the fewest cubes.
 				fewest.set_larger(value);
 			}
 		}
 
-		if (part == 1) {
+		if (1 == part) {
 			if (game_ok) sum += gameid;
 		} else {
 			sum += fewest.red * fewest.green * fewest.blue;

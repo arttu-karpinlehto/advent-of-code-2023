@@ -76,14 +76,12 @@ int day01(int part, std::istream& puzzle_input)
 
 		// Iterate over each character of the line.
 		for (auto line_it = line.begin(); line_it != line.end(); ++line_it) {
-			char c = *line_it;
+			auto c = *line_it;
 			if (isdigit(c)) {
 				// Every encountered number is the last one of the line.
 				last = c - '0';
-				if (-1 == first) {
-					first = last;	// Set first only when "value not set".
-				}
-			} else if (part == 2) {
+				if (-1 == first) first = last;	// Set first only when "value not set".
+			} else if (2 == part) {
 				// In part 2, also consider spelled out numbers.
 				// Try to find number strings from the line.
 				for (const auto& num : numbers) {	// num = { number, "number" }
@@ -92,9 +90,7 @@ int day01(int part, std::istream& puzzle_input)
 					if (strncmp(&line[std::distance(line.begin(), line_it)], num.second.c_str(), num.second.length()) == 0) {
 						// Again, every encountered number is the last one of the line.
 						last = num.first;
-						if (-1 == first) {
-							first = last;	// Set first only when "value not set".
-						}
+						if (-1 == first) first = last;	// Set first only when "value not set".
 					}
 				}
 			}
@@ -102,8 +98,7 @@ int day01(int part, std::istream& puzzle_input)
 
 		if (debug) std::cout << "First: " << first << ", Last: " << last << std::endl;
 
-		unsigned long value = 10 * first + last;
-		total += value;
+		total += 10 * first + last;
 	}
 
 	return total;
