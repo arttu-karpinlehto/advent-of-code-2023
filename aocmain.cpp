@@ -14,7 +14,7 @@ bool use_colors = true;
 
 // Add day solution functions in this map.
 std::map<int, dayfunction> day_functions = {
-	{1, day01}
+	{1, day01}, {2, day02}, {3, day03}
 };
 
 

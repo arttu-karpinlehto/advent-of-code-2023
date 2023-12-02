@@ -1,5 +1,5 @@
 /***
-Advent of Code 2023 - Day 01
+Advent of Code 2023 - Day 01: Trebuchet?!
 
 Part 1
 
