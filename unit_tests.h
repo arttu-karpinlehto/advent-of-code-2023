@@ -44,3 +44,24 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 	input.seekg(0);	// reset and rewind the stream
 	assert(2286 == day02(2, input));
 }
+
+
+void test_day03() {
+	std::stringstream input;
+	input <<
+"467..114..\n\
+...*......\n\
+..35..633.\n\
+......#...\n\
+617*......\n\
+.....+.58.\n\
+..592.....\n\
+......755.\n\
+...$.*....\n\
+.664.598..";
+	assert(4361 == day03(1, input));
+
+	input.clear();
+	input.seekg(0);	// reset and rewind the stream
+	assert(467835 == day03(2, input));
+}

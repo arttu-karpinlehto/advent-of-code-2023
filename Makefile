@@ -1,7 +1,6 @@
 CXX = g++
 
-CFLAGS = -fdiagnostics-color=always\
-		-std=gnu++20
+CFLAGS = -std=gnu++20
 
 SRCS := $(wildcard *.cpp)
 OBJS := $(wildcard day*.o)
@@ -20,9 +19,10 @@ aoc2023: aocmain.o ${OBJS}
 	${CXX} $^ -o $@
 
 %.o: %.cpp aoc.h
-	${CXX} ${CFLAGS} -pipe -g -c $< -o $@
+	${CXX} ${CFLAGS} -fdiagnostics-color=always -pipe -g -c $< -o $@
 
 .PHONY: unit_test
 unit_test: unit_test_driver.o ${OBJS}
+	echo ${OBJS}
 	${CXX} $^
 
