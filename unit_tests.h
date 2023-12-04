@@ -81,5 +81,4 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
 	input.clear();
 	input.seekg(0);	// reset and rewind the stream
 	assert(30 == day04(2, input));
-	assert(false);
 }

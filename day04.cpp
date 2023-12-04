@@ -99,6 +99,7 @@ Process all of the original and copied scratchcards until no more scratchcards a
 // Advent of Code 2023 Solutions by Arttu Kärpinlehto
 
 #include <algorithm>
+#include <set>
 #include <vector>
 #include <iostream>
 #include <sstream>
@@ -131,7 +132,8 @@ int day04(int puzzle_part, std::istream& puzzle_input)
 {
 	unsigned long	sum = 0;	// Solution stored here.
 
-	std::multimap<int, scratchcard> cards;
+	std::map<int, scratchcard> cards;
+	std::multiset<int> copies;
 
 	// Parse each line of puzzle input.
 	int num = 1;
@@ -147,6 +149,7 @@ int day04(int puzzle_part, std::istream& puzzle_input)
 		numstovec(newcard.winning, card_win);
 		numstovec(newcard.dealt, card_deal);
 		cards.insert({num, newcard});
+		copies.insert(num);
 	}
 
 	if (1 == puzzle_part) {
@@ -161,29 +164,28 @@ int day04(int puzzle_part, std::istream& puzzle_input)
 			sum += value;
 		}
 	} else {
-		auto lastcard = cards.size();
-		for (auto card = cards.begin(); card != cards.end(); ++card) {
+		auto lastcard = copies.size();
+		for (auto card = copies.begin(); card != copies.end(); ++card) {
 			if (debug) {
 				std::cout << "All Cards: ";
-				for (auto c = card; c != cards.end(); ++c)
-					std::cout << c->first << " ";
+				for (auto c = card; c != copies.end(); ++c)
+					std::cout << *c << " ";
 				std::cout << std::endl;
 			}
-			if (debug) std::cout << "Card: " << card->first << std::endl;
+			if (debug) std::cout << "Card: " << *card << std::endl;
 			int matches = 0;
-			for (const auto deal : card->second.dealt) {
-				if (std::find(card->second.winning.begin(), card->second.winning.end(), deal) != card->second.winning.end()) {
+			for (const auto deal : cards.at(*card).dealt) {
+				if (std::find(cards.at(*card).winning.begin(), cards.at(*card).winning.end(), deal) != cards.at(*card).winning.end()) {
 					matches++;
 				}
 			}
 			if (debug) std::cout << "Matches: " << matches << std::endl;
-			for (auto n = card->first + 1; (matches > 0) && (n <= lastcard); --matches, ++n) {
+			for (auto n = *card + 1; (matches > 0) && (n <= lastcard); --matches, ++n) {
 				if (debug) std::cout << "Inserting: " << n << std::endl;
-				auto it = cards.find(n);
-				cards.insert(*it);
+				copies.insert(n);
 			}
 		}
-		sum = cards.size();
+		sum = copies.size();
 	}
 
 	if (debug) std::cout << "Sum: " << sum << std::endl;
@@ -196,8 +198,15 @@ Advent of STL? Anyways, this version with straightforward reinsert of
 cards back to the vector works, but it is already quite slow with large
 dataset. Puzzle input with 220 cards, 10 winning numbers, and 25
 dealt numbers results in 10212704 card copies. My Ryzen 7 took 40
-seconds to solve this puzzle.
+seconds to solve this puzzle (optimised code took 5 ms).
 
 Better implementation with separate vector of cards and multiset of
 card numbers should be faster and more memory-efficient.
+
+Implementation with separate map or cards and multiset of card numbers
+did help the memory usage, but the execution is much slower, 1m 51s
+(non-optimised code). Optimised code (-O3) runs in 7 seconds.
+
+Third implementation options is just storing the match count and not
+reinsert values into multiset, which is costly.
 */
