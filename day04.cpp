@@ -110,14 +110,15 @@ Process all of the original and copied scratchcards until no more scratchcards a
 
 #include "aoc.h"
 
-
+// Scratch cards are stored in this data structure.
 struct scratchcard {
 	long count;		// Number of cards of this type.
 	int matches;	// Number of matches this card has.
-	std::vector<int>	winning;
-	std::vector<int>	dealt;
+	std::vector<int>	winning;	// List of winning numbers.
+	std::vector<int>	dealt;		// List of my numbers.
 };
 
+// Given string like "1 2 3", pushes values 1, 2, and 3 to the vector.
 void numstovec(std::vector<int>& vec, std::string s)
 {
 	std::istringstream ss;
@@ -134,25 +135,29 @@ int day04(int puzzle_part, std::istream& puzzle_input)
 {
 	unsigned long	sum = 0;	// Solution stored here.
 
+	// Store all scratch cards here, map key is the card number.
 	std::map<int, scratchcard> cards;
 
 	// Parse each line of puzzle input.
-	int num = 1;
+	int num = 1;	// For card number.
 	for (std::string line; std::getline(puzzle_input, line); ++num) {
 		if (debug) std::cout << "Line: " << line << std::endl;
 		scratchcard newcard;
+		// Separate winning numbers and dealt numbers.
 		std::istringstream s;
 		s.str(line);
 		std::string dummy, card_win, card_deal;
-		std::getline(s, dummy, ':');
+		std::getline(s, dummy, ':');	// No need to parse the card number.
 		std::getline(s, card_win, '|');
 		std::getline(s, card_deal);
 		numstovec(newcard.winning, card_win);
 		numstovec(newcard.dealt, card_deal);
+		// Initially we have only one card of each.
 		newcard.count = 1;
 		cards.insert({num, newcard});
 	}
 
+	// Count matches per card. This is also used in part 2.
 	if (true) {
 		for (auto& card : cards) {
 			int matches = 0;
@@ -161,26 +166,29 @@ int day04(int puzzle_part, std::istream& puzzle_input)
 					++matches;
 				}
 			}
-			card.second.count = 1;
 			card.second.matches = matches;
+			// Count the points total for part 1 only.
 			if (1 == puzzle_part) sum += (matches > 0) ? pow(2, matches - 1) : 0;
 		}
 	}
+	
 	if (2 == puzzle_part) {
-		auto lastcard = cards.size();
 		for (auto card = cards.begin(); card != cards.end(); ++card) {
 			if (debug) std::cout << "Card: " << card->first << " Count: " << card->second.count << std::endl;
+			// Repeat the current card as per card count.
 			for (auto c = 0; c < card->second.count; ++c) {
 				auto upcard = card;
 				++upcard;	// Next card.
+				// Update the count for next 'matches' cards.
 				for (auto m = 0; m < card->second.matches; ++m) {
-					if (upcard != cards.end()) {
+					if (upcard != cards.end()) {	// Do not go over.
 						if (debug) std::cout << "Updating card " << upcard->first << std::endl;
 						upcard->second.count += 1;
 						++upcard;
 					}
 				}
 			}
+			// Now we can update the total card sum with current card count.
 			sum += card->second.count;
 		}
 	}
@@ -191,23 +199,31 @@ int day04(int puzzle_part, std::istream& puzzle_input)
 }
 
 /*
+-- Implementation 1 notes: --
 Advent of STL? Anyways, this version with straightforward reinsert of
 cards back to the vector works, but it is already quite slow with large
 dataset. Puzzle input with 220 cards, 10 winning numbers, and 25
 dealt numbers results in 10212704 card copies. My Ryzen 7 took 40
 seconds to solve this puzzle (optimised code took 5 ms).
+(My WSL might have been borked, 40 sec seems too much.)
 
 Better implementation with separate vector of cards and multiset of
 card numbers should be faster and more memory-efficient.
 
-Implementation with separate map or cards and multiset of card numbers
-did help the memory usage, but the execution is much slower, 1m 51s
-(non-optimised code). Optimised code (-O3) runs in 7 seconds.
+-- Implementation 2 notes: --
+Separate map or cards and multiset of card numbers did help the memory
+usage, but the execution is much slower, 1m 51s (non-optimised code).
+Optimised code (-O3) runs in 7 seconds.
+(Again, WSL sometimes gets terribly slow when vmmem starts cleaning
+up memory.)
 
-Third implementation options is just storing the match count and not
+Third implementation option is just storing the match count and not
 reinsert values into multiset, which is costly.
 
+-- Implementation 3 notes: --
 Third time's the charm. Just storing the number of matches and number
-of cards made all the difference. Now non-optimised runtime is less
+of cards made all the difference. Now non-optimised build runs in less
 than a second.
+
+(For previous implementations, see version history.)
 */
