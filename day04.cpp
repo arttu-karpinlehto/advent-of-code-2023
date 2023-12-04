@@ -106,12 +106,14 @@ Process all of the original and copied scratchcards until no more scratchcards a
 #include <string>
 #include <cstring>
 #include <cctype>
-#include <cassert>
+#include <cmath>
 
 #include "aoc.h"
 
 
 struct scratchcard {
+	long count;		// Number of cards of this type.
+	int matches;	// Number of matches this card has.
 	std::vector<int>	winning;
 	std::vector<int>	dealt;
 };
@@ -133,7 +135,6 @@ int day04(int puzzle_part, std::istream& puzzle_input)
 	unsigned long	sum = 0;	// Solution stored here.
 
 	std::map<int, scratchcard> cards;
-	std::multiset<int> copies;
 
 	// Parse each line of puzzle input.
 	int num = 1;
@@ -148,44 +149,40 @@ int day04(int puzzle_part, std::istream& puzzle_input)
 		std::getline(s, card_deal);
 		numstovec(newcard.winning, card_win);
 		numstovec(newcard.dealt, card_deal);
+		newcard.count = 1;
 		cards.insert({num, newcard});
-		copies.insert(num);
 	}
 
-	if (1 == puzzle_part) {
-		for (const auto& card : cards) {
-			int value = 0;
+	if (true) {
+		for (auto& card : cards) {
+			int matches = 0;
 			for (const auto deal : card.second.dealt) {
 				if (std::find(card.second.winning.begin(), card.second.winning.end(), deal) != card.second.winning.end()) {
-					if (0 == value) value = 1;
-					else value *= 2;
+					++matches;
 				}
 			}
-			sum += value;
+			card.second.count = 1;
+			card.second.matches = matches;
+			if (1 == puzzle_part) sum += (matches > 0) ? pow(2, matches - 1) : 0;
 		}
-	} else {
-		auto lastcard = copies.size();
-		for (auto card = copies.begin(); card != copies.end(); ++card) {
-			if (debug) {
-				std::cout << "All Cards: ";
-				for (auto c = card; c != copies.end(); ++c)
-					std::cout << *c << " ";
-				std::cout << std::endl;
-			}
-			if (debug) std::cout << "Card: " << *card << std::endl;
-			int matches = 0;
-			for (const auto deal : cards.at(*card).dealt) {
-				if (std::find(cards.at(*card).winning.begin(), cards.at(*card).winning.end(), deal) != cards.at(*card).winning.end()) {
-					matches++;
+	}
+	if (2 == puzzle_part) {
+		auto lastcard = cards.size();
+		for (auto card = cards.begin(); card != cards.end(); ++card) {
+			if (debug) std::cout << "Card: " << card->first << " Count: " << card->second.count << std::endl;
+			for (auto c = 0; c < card->second.count; ++c) {
+				auto upcard = card;
+				++upcard;	// Next card.
+				for (auto m = 0; m < card->second.matches; ++m) {
+					if (upcard != cards.end()) {
+						if (debug) std::cout << "Updating card " << upcard->first << std::endl;
+						upcard->second.count += 1;
+						++upcard;
+					}
 				}
 			}
-			if (debug) std::cout << "Matches: " << matches << std::endl;
-			for (auto n = *card + 1; (matches > 0) && (n <= lastcard); --matches, ++n) {
-				if (debug) std::cout << "Inserting: " << n << std::endl;
-				copies.insert(n);
-			}
+			sum += card->second.count;
 		}
-		sum = copies.size();
 	}
 
 	if (debug) std::cout << "Sum: " << sum << std::endl;
@@ -209,4 +206,8 @@ did help the memory usage, but the execution is much slower, 1m 51s
 
 Third implementation options is just storing the match count and not
 reinsert values into multiset, which is costly.
+
+Third time's the charm. Just storing the number of matches and number
+of cards made all the difference. Now non-optimised runtime is less
+than a second.
 */
