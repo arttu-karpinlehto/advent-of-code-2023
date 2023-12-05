@@ -80,7 +80,9 @@ int day05(int puzzle_part, std::istream& puzzle_input)
 {
 	long lowest = __LONG_MAX__;	// Solution stored here.
 
-	std::set<long> seeds;
+	//std::set<long> seeds;	// Seeds were just a set for part 1.
+	std::map<long, long>	seedranges;	// For part 2, seed ranges.
+
 	std::vector<a_to_b>	seed_to_soil;
 	std::vector<a_to_b>	soil_to_fertilizer;
 	std::vector<a_to_b>	fertilizer_to_water;
@@ -90,19 +92,39 @@ int day05(int puzzle_part, std::istream& puzzle_input)
 	std::vector<a_to_b>	humidity_to_location;
 
 	// Parse first line of puzzle input.
-	std::string line;
-	std::getline(puzzle_input, line);
-	std::stringstream ss;
-	ss.str(line);
-	for (std::string s; std::getline(ss, s, ' '); ) {
-		if (isdigit(s[0])) {
-			auto n = std::stol(s);
-			seeds.insert(n);
+	if (1 == puzzle_part) {
+		std::string line;
+		std::getline(puzzle_input, line);
+		std::stringstream ss;
+		ss.str(line);
+		for (std::string s; std::getline(ss, s, ' '); ) {
+			if (isdigit(s[0])) {
+				auto n = std::stol(s);
+				seedranges.insert({n, n});
+			}
+		}
+	} else {
+		std::string line;
+		std::getline(puzzle_input, line);
+		std::stringstream ss;
+		ss.str(line);
+		long n, m;
+		bool flippyfloppy = true;
+		for (std::string s; std::getline(ss, s, ' '); ) {
+			if (isdigit(s[0])) {
+				if (flippyfloppy) {
+					n = std::stol(s);
+				} else {
+					m = std::stol(s);
+					seedranges.insert({n, n + m - 1});
+				}
+				flippyfloppy ^= 1;
+			}
 		}
 	}
 	if (debug) {
 		std::cout << "Seeds: ";
-		for (auto n = seeds.begin(); n != seeds.end(); ++n) std::cout << *n << ",";
+		for (auto n = seedranges.begin(); n != seedranges.end(); ++n) std::cout << n->first << "-" << n->second << ",";
 		std::cout << std::endl;
 	}
 
@@ -121,19 +143,19 @@ int day05(int puzzle_part, std::istream& puzzle_input)
 	skiptoheader(puzzle_input, "humidity-to-location map:");
 	readlines(puzzle_input, humidity_to_location);
 
-	for (auto seed : seeds) {
-		auto loc
-		= findmatch(humidity_to_location,
-			findmatch(temperature_to_humidity,
-				findmatch(light_to_temperature,
-					findmatch(water_to_light,
-						findmatch(fertilizer_to_water,
-							findmatch(soil_to_fertilizer,
-								findmatch(seed_to_soil, seed)))))));
-
-		if (debug) std::cout << "Location: " << loc << std::endl;
-
-		lowest = std::min(lowest, loc);
+	for (auto seedrange : seedranges) {
+		for (auto seed = seedrange.first; seed <= seedrange.second; ++seed) {
+			auto loc
+			= findmatch(humidity_to_location,
+				findmatch(temperature_to_humidity,
+					findmatch(light_to_temperature,
+						findmatch(water_to_light,
+							findmatch(fertilizer_to_water,
+								findmatch(soil_to_fertilizer,
+									findmatch(seed_to_soil, seed)))))));
+			if (debug) std::cout << "Location: " << loc << std::endl;
+			lowest = std::min(lowest, loc);
+		}
 	}
 
 	if (debug) std::cout << "Lowest: " << lowest << std::endl;
@@ -142,4 +164,6 @@ int day05(int puzzle_part, std::istream& puzzle_input)
 }
 
 /*
+Non-optimised part 2 run 32m 21s.
+
 */
