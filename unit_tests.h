@@ -127,3 +127,18 @@ humidity-to-location map:\n\
 	input.seekg(0);	// reset and rewind the stream
 	assert(46 == day05(2, input));
 }
+
+
+void test_day06() {
+	std::stringstream input;
+	input <<
+"Time:      7  15   30\n\
+Distance:  9  40  200";
+
+	assert(288 == day06(1, input));
+
+	input.clear();
+	input.seekg(0);	// reset and rewind the stream
+	assert(71503 == day06(2, input));
+	//assert(false);
+}
