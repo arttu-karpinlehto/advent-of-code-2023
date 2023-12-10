@@ -138,9 +138,9 @@ struct partnumber {
 };
 
 
-int day03(int puzzle_part, std::istream& puzzle_input)
+long day03(int puzzle_part, std::istream& puzzle_input)
 {
-	unsigned long	sum = 0;	// Solution stored here.
+	long sum = 0;	// Solution stored here.
 
 	std::vector<partnumber> partnumbers;
 	std::vector<enginepart> engineparts;

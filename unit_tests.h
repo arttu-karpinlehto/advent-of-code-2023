@@ -142,3 +142,20 @@ Distance:  9  40  200";
 	assert(71503 == day06(2, input));
 	//assert(false);
 }
+
+
+void test_day07() {
+	std::stringstream input;
+	input <<
+"32T3K 765\n\
+T55J5 684\n\
+KK677 28\n\
+KTJJT 220\n\
+QQQJA 483";
+
+	assert(6440 == day07(1, input));
+
+	input.clear();
+	input.seekg(0);	// reset and rewind the stream
+	assert(5905 == day07(2, input));
+}

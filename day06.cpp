@@ -156,7 +156,7 @@ struct race {
 };
 
 
-int day06(int puzzle_part, std::istream& puzzle_input)
+long day06(int puzzle_part, std::istream& puzzle_input)
 {
 	long margin = 1;	// Solution is stored here.
 

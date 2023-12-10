@@ -62,9 +62,9 @@ std::map<unsigned int, std::string> numbers = {
 };
 
 
-int day01(int part, std::istream& puzzle_input)
+long day01(int part, std::istream& puzzle_input)
 {
-	unsigned long	total = 0;	// Sum of values stored here.
+	long total = 0;	// Sum of values stored here.
 
 	// Parse each line of puzzle input.
 	for (std::string line; std::getline(puzzle_input, line); ) {

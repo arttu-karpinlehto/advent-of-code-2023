@@ -303,7 +303,7 @@ long rangelowest(long seed_first, long seed_end, long& lowest) {
 }
 
 
-int day05(int puzzle_part, std::istream& puzzle_input)
+long day05(int puzzle_part, std::istream& puzzle_input)
 {
 	long lowest = __LONG_MAX__;	// Solution stored here.
 

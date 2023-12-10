@@ -151,9 +151,9 @@ void fetch(cubes& value, std::string s)
 }
 
 
-int day02(int part, std::istream& puzzle_input)
+long day02(int part, std::istream& puzzle_input)
 {
-	unsigned long	sum = 0;	// Solution stored here.
+	long sum = 0;	// Solution stored here.
 
 	// Parse each line of puzzle input.
 	int gameid = 1;	// Game ID is linear so no need to parse the input.

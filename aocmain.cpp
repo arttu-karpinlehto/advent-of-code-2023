@@ -14,7 +14,7 @@ bool use_colors = true;
 
 // Add day solution functions in this map.
 std::map<int, dayfunction> day_functions = {
-	{1, day01}, {2, day02}, {3, day03}, {4, day04}, {5, day05}, {6, day06}
+	{1, day01}, {2, day02}, {3, day03}, {4, day04}, {5, day05}, {6, day06}, {7, day07}
 };
 
 
@@ -67,11 +67,11 @@ int main(int argc, char* argv[])
 	// Input file and day solution function invocation.
 	std::ifstream puzzle_input;
 	auto f = day_functions.find(AoC_day);
-	int result = 0;
+	long result = 0;
 	if (f != day_functions.end()) {
 		// Puzzle input file should be named "dayNN-input.txt".
 		std::stringstream filename;
-		filename << "day" << std::string((AoC_day < 10) ? "0" : "") << AoC_day << "-input.txt";
+		filename << "inputs/day" << std::string((AoC_day < 10) ? "0" : "") << AoC_day << "-input.txt";
 
 		if (use_colors) std::cout << "\x1B[34m";
 		std::cout << "Puzzle input: " << filename.str() << std::endl;

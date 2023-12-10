@@ -10,10 +10,10 @@ OBJS := $(SRCS:.cpp=.o)
 TODAY = $(shell date +'%d')
 
 .PHONY: all
-all: aoc2023 runtoday
+all: aoc2023
 
-.PHONY: runtoday
-runtoday: aoc2023 day${TODAY}-input.txt
+.PHONY: today
+today: aoc2023 inputs/day${TODAY}-input.txt
 	@./aoc2023 ${TODAY} 1 || true
 	@./aoc2023 ${TODAY} 2 || true
 

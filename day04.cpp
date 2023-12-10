@@ -131,9 +131,9 @@ void numstovec(std::vector<int>& vec, std::string s)
 }
 
 
-int day04(int puzzle_part, std::istream& puzzle_input)
+long day04(int puzzle_part, std::istream& puzzle_input)
 {
-	unsigned long	sum = 0;	// Solution stored here.
+	long sum = 0;	// Solution stored here.
 
 	// Store all scratch cards here, map key is the card number.
 	std::map<int, scratchcard> cards;
