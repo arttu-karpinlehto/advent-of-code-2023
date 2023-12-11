@@ -159,3 +159,45 @@ QQQJA 483";
 	input.seekg(0);	// reset and rewind the stream
 	assert(5905 == day07(2, input));
 }
+
+
+void test_day08() {
+	std::stringstream input1;
+	input1 <<
+"RL\n\
+\n\
+AAA = (BBB, CCC)\n\
+BBB = (DDD, EEE)\n\
+CCC = (ZZZ, GGG)\n\
+DDD = (DDD, DDD)\n\
+EEE = (EEE, EEE)\n\
+GGG = (GGG, GGG)\n\
+ZZZ = (ZZZ, ZZZ)";
+
+	assert(2 == day08(1, input1));
+
+	std::stringstream input2;
+	input2 <<
+"LLR\n\
+\n\
+AAA = (BBB, BBB)\n\
+BBB = (AAA, ZZZ)\n\
+ZZZ = (ZZZ, ZZZ)";
+
+	assert(6 == day08(1, input2));
+
+	std::stringstream input3;
+	input3 <<
+"LR\n\
+\n\
+11A = (11B, XXX)\n\
+11B = (XXX, 11Z)\n\
+11Z = (11B, XXX)\n\
+22A = (22B, XXX)\n\
+22B = (22C, 22C)\n\
+22C = (22Z, 22Z)\n\
+22Z = (22B, 22B)\n\
+XXX = (XXX, XXX)";
+
+	assert(6 == day08(2, input3));
+}
