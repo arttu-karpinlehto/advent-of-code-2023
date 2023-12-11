@@ -128,17 +128,18 @@ it take before you're only on nodes that end with Z?
 #include "aoc.h"
 
 
-bool ghost_paths = false;
-
-
+// Single node is stored in this data structure.
+// Instead of the ABC label, value is stored as ASCII values packed into long int.
 struct node {
 	long n;
 
 	node() : n(0) {}
 	node(const std::string s) {
+		// First three characters of a string packed into lowest 24 bits.
 		n = (s[0]) << 16 | (s[1]) << 8 | (s[2]);
 	}
 
+	// Return reconstructed label.
 	std::string name() const {
 		std::string s;
 		s += (n >> 16);
@@ -147,21 +148,24 @@ struct node {
 		return s;
 	}
 
-	bool ends_with(char c) const {
-		return (n & 0xFF) == c;
-	}
+	// Returns true if last (third) character of the
+	// original label is same as the input argument.
+	inline bool ends_with(char c) const { return (n & 0xFF) == c; }
 
 	friend inline bool operator==(const node& lhs, const node& rhs) { return lhs.n == rhs.n; }
 	friend inline bool operator<(const node& lhs, const node& rhs) { return lhs.n < rhs.n; }
 };
 
+// Routing instruction is stored in this data structure.
 struct instruction {
-	node left, right;
-	node tgt;
-	instruction* ileft;
-	instruction* iright;
-	bool is_zzz;
-	bool ends_in_z;
+	node left, right;		// Node values for left and right instructions.
+	node tgt;				// Node value for this.
+	bool is_zzz;			// Is this node "ZZZ"?
+	bool ends_in_z;			// Does this node label end with "Z"?
+
+	// These pointers are set after all instructions are read from puzzle input.
+	instruction* ileft = nullptr;
+	instruction* iright = nullptr;
 
 	instruction(const std::string s) {
 		tgt = s.substr(0, 3);
@@ -177,17 +181,18 @@ long day08(int puzzle_part, std::istream& puzzle_input)
 {
 	long total = 0;	// Solution result is stored here.
 
-	ghost_paths = (2 == puzzle_part) ? true : false;
-
+	// The instructions read from puzzle input.
+	// Node value is the key.
 	std::map<long, instruction>	instructions;
 
-	// Read puzzle input
+	// Read puzzle input, first route string.
 	std::string route;
 	std::getline(puzzle_input, route);
 	if (debug) std::cout << "Route: " << route << std::endl;
 
+	// Read puzzle input, instruction strings.
 	for (std::string line; std::getline(puzzle_input, line); ) {
-		if (line.length() < 1) continue;
+		if (line.length() < 1) continue;	// Skip empty lines.
 		instruction inst(line);
 		instructions.insert({inst.tgt.n, inst});
 	}
@@ -203,6 +208,7 @@ long day08(int puzzle_part, std::istream& puzzle_input)
 		}
 	}
 
+	// Update instructions with direct pointers to left and right.
 	for (auto i_it = instructions.begin(); i_it != instructions.end(); ++i_it) {
 		i_it->second.ileft = &instructions.at(i_it->second.left.n);
 		i_it->second.iright = &instructions.at(i_it->second.right.n);
@@ -211,20 +217,21 @@ long day08(int puzzle_part, std::istream& puzzle_input)
 	if (1 == puzzle_part) {
 		auto r = route.begin();
 
+		// Count the route hops, start from "AAA" node.
 		instruction* curr = &instructions.at(node("AAA").n);
 		while (!curr->is_zzz) {
 			if (debug) std::cout << "Node: " << curr->tgt.name()
 				<< (('R' == *r) ? std::string(" R: " + curr->iright->tgt.name()) : std::string(" L: " + curr->ileft->tgt.name())) << std::endl;
-			curr = ('R' == *r) ? curr->iright : curr->ileft;
-			if (++r == route.end()) {
-				r = route.begin();
-			}
+
+			curr = ('R' == *r) ? curr->iright : curr->ileft;	// Follow the route.
+			if (++r == route.end()) r = route.begin();	// Repeat route if exhausted.
 			total += 1;
 		}
 	} else {
 		auto r = route.begin();
-		std::vector<node> starts;
 
+		// Collect starting nodes.
+		std::vector<node> starts;
 		for (auto i : instructions) {
 			if (i.second.tgt.ends_with('A')) {
 				if (debug) std::cout << "Starting point: " << i.second.tgt.name() << std::endl;
@@ -232,11 +239,11 @@ long day08(int puzzle_part, std::istream& puzzle_input)
 			}
 		}
 
-		size_t qnum = starts.size();
-		std::vector<long> totals;
+		// Count the route hops for each route.
+		// Use least common multiplier for grand total.
+		total = 1;
 		for (auto sp : starts) {
-			total = 0;
-			if (debug) std::cout << "Routing queue " << qnum << std::endl;
+			long hops = 0;
 			instruction* curr = &instructions.at(sp.n);
 			while (!curr->ends_in_z) {
 				if (debug) std::cout << "Node: " << curr->tgt.name()
@@ -245,23 +252,26 @@ long day08(int puzzle_part, std::istream& puzzle_input)
 				if (++r == route.end()) {
 					r = route.begin();
 				}
-				total += 1;
+				hops += 1;
 			}
-			totals.push_back(total);
-		}
-
-		for (auto t : totals) {
-			if (debug) std::cout << "Total: " << t << std::endl;
-			total = std::lcm(total, t);
+			if (debug) std::cout << "Hops: " << hops << std::endl;
+			total = std::lcm(total, hops);
 		}
 	}
 
-	if (debug) std::cout << "End found after step: " << total << std::endl;
+	if (debug) std::cout << "End found after hop: " << total << std::endl;
 
 	return total;
 }
 
 
 /*
+First puzzle this year where brute force looping isn't practical.
+Part 1 is easy, but part 2 needs to be split into separate routes
+and finding the least common multiplier for the hop counts.
 
+This implementation includes quite unnecessary optimisation of
+storing direct pointers to left and right instruction targets.
+No matter how speedy the lookup is, 16 trillion hops would still
+take hundreds of years.
 */

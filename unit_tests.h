@@ -201,3 +201,18 @@ XXX = (XXX, XXX)";
 
 	assert(6 == day08(2, input3));
 }
+
+
+void test_day09() {
+	std::stringstream input;
+	input <<
+"0 3 6 9 12 15\n\
+1 3 6 10 15 21\n\
+10 13 16 21 30 45";
+
+	assert(114 == day09(1, input));
+
+	input.clear();
+	input.seekg(0);	// reset and rewind the stream
+	assert(2 == day09(2, input));
+}
