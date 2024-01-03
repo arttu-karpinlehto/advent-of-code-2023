@@ -18,15 +18,15 @@ today: aoc2023 inputs/day${TODAY}-input.txt
 	@./aoc2023 ${TODAY} 2 || true
 
 aoc2023: aocmain.o ${OBJS}
-	${CXX} $^ -pthread -o $@
+	${CXX} $^ -Llib/ -lp8g++ -Wl,-rpath=lib/ -pthread -o $@
 
 %.o: %.cpp aoc.h
-	${CXX} ${CFLAGS} ${EXTRAFLAGS} -pipe -pthread -c $< -o $@
+	${CXX} ${CFLAGS} ${EXTRAFLAGS} -Ilib/ -pipe -pthread -c $< -o $@
 
 .PHONY: unit_test
 unit_test: unit_test_driver.o ${OBJS}
 	echo ${OBJS}
-	${CXX} $^
+	${CXX} $^ -Llib/ -lp8g++ -Wl,-rpath=/home/arttu/src/aoc/advent-of-code-2023/lib/
 
 .PHONY: clean
 clean:

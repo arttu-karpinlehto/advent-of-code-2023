@@ -8,6 +8,7 @@
 
 // Global flags.
 extern bool	debug;
+extern bool unit_testing;
 extern bool	use_colors;
 
 // Function type for day solution.
