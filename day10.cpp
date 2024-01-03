@@ -685,5 +685,12 @@ long day10(int puzzle_part, std::istream& puzzle_input)
 
 
 /*
+This puzzle was the turning point this year. Implementing the bitmap and
+flood-filling it was just too much work and not enough fun, so I took
+an advantage of the situation and made it a bit more fun for myself by
+adding the Precessing library. As the name implies, it is very similar
+to Processing and proved to be quite easy to use.
 
+As this day's puzzle took more than a day, it completely stalled the
+AoC routine.
 */
