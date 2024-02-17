@@ -4,12 +4,32 @@
 // Advent of Code 2023 Solutions by Arttu Kärpinlehto
 
 #include <map>
+#include <set>
+#include <vector>
 #include <iostream>
 
 // Global flags.
 extern bool	debug;
 extern bool unit_testing;
 extern bool	use_colors;
+
+// Some utility stuff.
+template <typename T>
+void print_set(std::set<T> s)
+{
+	for (const auto& i : s) {
+		std::cout << i << " ";
+	}
+};
+
+template <typename T>
+void print_vec(std::vector<T> v)
+{
+	for (const auto& i : v) {
+		std::cout << i << " ";
+	}
+};
+
 
 // Function type for day solution.
 typedef long (*dayfunction)(int, std::istream& is);

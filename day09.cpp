@@ -165,13 +165,6 @@ value for each history. What is the sum of these extrapolated values?
 
 #include "aoc.h"
 
-template <typename T>
-void print_vec(std::vector<T> v) {
-	for (const auto& i : v) {
-		std::cout << i << " ";
-	}
-}
-
 
 long sequence(std::vector<long>& seq) {
 	std::vector<long> diffs;

@@ -169,42 +169,38 @@ struct coord {
 };
 
 
-template <typename T>
-void print_set(std::set<T> s) {
-	for (const auto& i : s) {
-		std::cout << i << " ";
-	}
-}
-
-template <typename T>
-void print_vec(std::vector<T> v) {
-	for (const auto& i : v) {
-		std::cout << i << " ";
-	}
-}
-
-std::set<int> reverse_set(std::set<int> s) {
+// Return a new set of integers consisting of numbers [0-N]
+// that are *not* in the input set [0-N].
+std::set<int> complement_set(std::set<int> s)
+{
 	std::set<int> n;
-	for (int i = 0; i <= *s.rbegin(); ++i) {
-		if (!s.contains(i)) {
-			n.insert(i);
-		}
+	for (int i = 0; i < *s.rbegin(); ++i) {
+		if (!s.contains(i)) n.insert(i);
 	}
 	return n;
 }
 
 
-int count_galaxies(const std::string s, std::set<int>& cols) {
-	int count = 0;
-	int col = 0;
-	for (const auto& c : s) {
-		if ('#' == c) {
-			count += 1;
-			cols.insert(col);
-		}
-		col += 1;
+// For coordinate position pos, move it exp units forward for
+// each empty location.  In other words, add exp value to pos
+// as many times as there are empties smaller that the pos value.
+void expand_position(int* pos, const int exp, const std::set<int> empties) {
+	int add = 0;
+	for (auto it = empties.begin(); it != empties.end(); ++it) {
+		if (*pos < *it) break;
+		add += exp;
 	}
-	return count;
+	*pos += add;
+}
+
+
+// Expand the universe: move all galaxy coordinates.
+void expand_universe(std::vector<coord>& galaxies, const int exp, const std::set<int> cols, const std::set<int> lines)
+{
+	for (auto galaxy_it = galaxies.begin(); galaxy_it != galaxies.end(); ++galaxy_it) {
+		expand_position(&(galaxy_it->y), exp, lines);
+		expand_position(&(galaxy_it->x), exp, cols);
+	}
 }
 
 
@@ -215,56 +211,54 @@ long day11(int puzzle_part, std::istream& puzzle_input)
 	std::vector<coord> galaxies;
 
 	// Read puzzle input.
-	{
-		std::vector<std::string> lines;
-		std::set<int> columns;
-		for (std::string line; std::getline(puzzle_input, line); ) {
-			lines.push_back(line);
-			if (0 == count_galaxies(line, columns)) {
-				lines.push_back(line);
+	int y = 0;
+	std::set<int> lines;
+	std::set<int> columns;
+	for (std::string line; std::getline(puzzle_input, line); ) {
+		int count = 0;
+		for (auto x = 0; x < line.length(); ++x) {
+			if ('#' == line.at(x)) {
+				galaxies.push_back(coord(x, y));
+				columns.insert(x);
+				count += 1;
 			}
 		}
-		auto noncolumns = reverse_set(columns);
-		if (debug) std::cout << "Lines: " << lines.size() << " Columns: " << lines[0].length() + noncolumns.size() << std::endl;
-		//if (debug) std::cout << "Columns: "; print_set(noncolumns); std::cout << std::endl;
-		
-		for (auto line_it = lines.begin(); line_it != lines.end(); ++line_it) {
-			for (auto col_it = noncolumns.crbegin(); col_it != noncolumns.crend(); ++col_it) {
-				line_it->insert(*col_it, ".");
-			}
-			for (auto i = 0; i < line_it->length(); ++i) {
-				if ('#' == line_it->at(i)) {
-					galaxies.push_back(coord(i, std::distance(lines.begin(), line_it)));
-				}
-			}
-		}
+		if (count > 0) { lines.insert(y); }
+		y += 1;
+	}
+	auto noncolumns = complement_set(columns);
+	auto nonlines = complement_set(lines);
+	if (debug) {
+		std::cout << "Columns: "; print_set(noncolumns);
+		std::cout << "\nLines:   "; print_set(nonlines); std::cout << std::endl;
+	}
+	
+	// Expand the universe.
+	if (1 == puzzle_part) {
+		expand_universe(galaxies, 1, noncolumns, nonlines);	// Part 1
+	} else if (10 == puzzle_part) {
+		expand_universe(galaxies, 10-1, noncolumns, nonlines);	// Unit test
+	} else if (100 == puzzle_part) {
+		expand_universe(galaxies, 100-1, noncolumns, nonlines);	// Unit test
+	} else {
+		expand_universe(galaxies, 1000000-1, noncolumns, nonlines);	// Part 2
+	}
 
-		if (debug) {
-			for (auto s : lines) {
-				std::cout << s << "\n";
-			}
-			for (auto g : galaxies) {
-				std::cout << g.x << "," << g.y << "\n";
-			}
+	if (debug) {
+		for (auto g : galaxies) {
+			std::cout << g.x << "," << g.y << "\n";
 		}
 	}
 
 	// Count distances
-	{
-		//int count = 0;
-		for (auto g_it = galaxies.begin(); g_it != galaxies.end(); ++g_it) {
-			for (auto gg_it = g_it + 1; gg_it != galaxies.end(); ++gg_it) {
-				//std::cout << "Path: " << std::distance(galaxies.begin(), g_it) + 1 << " -> " << std::distance(galaxies.begin(), gg_it) + 1 << "  ";
-				auto d = *gg_it - *g_it;
-				//std::cout << d.x << "," << d.y << "\n";
-				//count += 1;
-				total += std::abs(d.x) + std::abs(d.y);
-			}
+	for (auto g_it = galaxies.begin(); g_it != galaxies.end(); ++g_it) {
+		for (auto gg_it = g_it + 1; gg_it != galaxies.end(); ++gg_it) {
+			//std::cout << "Path: " << std::distance(galaxies.begin(), g_it) + 1 << " -> " << std::distance(galaxies.begin(), gg_it) + 1 << "  ";
+			auto d = *gg_it - *g_it;
+			//std::cout << d.x << "," << d.y << "\n";
+			total += std::abs(d.x) + std::abs(d.y);
 		}
-		//std::cout << "Count: " << count << std::endl;
 	}
-
-
 
 	if (debug) std::cout << "Total: " << total << std::endl;
 
@@ -273,5 +267,9 @@ long day11(int puzzle_part, std::istream& puzzle_input)
 
 
 /*
+Part 2 was a classic AoC curveball, forcing rewrite of the part 1 algorithm
+entirely.  Adding the expansion value to coordinate values is more elegant
+anyway - choosing the correct loop structure was the most important problem.
 
+Due to life and all, this puzzle was completed over two months later.
 */

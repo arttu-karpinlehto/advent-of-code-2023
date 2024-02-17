@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 		}
 
 		int part = atoi(argv[2]);
-		if ((part == 1) || (part == 2)) {
+		if (part > 0) {
 			AoC_part = part;
 		}
 
